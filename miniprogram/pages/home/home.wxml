@@ -1,0 +1,125 @@
+<view class="container">
+  <view class="header">
+    <view class="header-left">
+      <view class="greeting-title">{{greeting}}，{{userProfile.nickname}}</view>
+      <view class="greeting-date">{{month}}月{{day}}日 {{weekDay}}</view>
+    </view>
+    <view class="avatar">
+      <text class="avatar-icon">👤</text>
+    </view>
+  </view>
+
+  <view class="stats-card">
+    <view class="stats-row">
+      <view class="stat-item">
+        <view class="stat-value">{{userProfile.currentStreak}}</view>
+        <view class="stat-label">连续天数</view>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-item">
+        <view class="stat-value">{{userProfile.totalStudyDays}}</view>
+        <view class="stat-label">累计天数</view>
+      </view>
+      <view class="divider"></view>
+      <view class="stat-item">
+        <view class="stat-value">{{userProfile.totalStudyHours}}</view>
+        <view class="stat-label">累计小时</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="checkin-card">
+    <view class="checkin-header">
+      <view class="checkin-title">今日学习</view>
+      <view class="checkin-status {{isCheckedIn ? 'checked' : ''}}">
+        {{isCheckedIn ? '已打卡' : '未打卡'}}
+      </view>
+    </view>
+
+    <block wx:if="{{!isCheckedIn}}">
+      <view class="duration-selector">
+        <view 
+          wx:for="{{durationOptions}}" 
+          wx:key="*this"
+          class="duration-btn {{selectedDuration === item ? 'active' : ''}}"
+          data-duration="{{item}}"
+          bindtap="selectDuration"
+        >
+          {{item}}分钟
+        </view>
+      </view>
+      <input 
+        class="note-input" 
+        placeholder="记录今天的学习收获..." 
+        value="{{note}}"
+        bindinput="onNoteInput"
+      />
+      
+      <block wx:if="{{activeGoals.length > 0}}">
+        <view class="goal-select-label">选择学习目标（可选）</view>
+        <view class="goal-selector">
+          <view 
+            wx:for="{{activeGoals}}" 
+            wx:key="id"
+            class="goal-select-item {{selectedGoalId === item.id ? 'active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="selectGoal"
+          >
+            <view class="goal-select-name">{{item.title}}</view>
+            <view class="goal-select-progress">{{calculateProgress(item.currentDuration, item.targetDuration)}}%</view>
+          </view>
+        </view>
+      </block>
+      
+      <view class="checkin-btn" bindtap="doCheckIn">
+        <text class="checkin-icon">✓</text>
+        <text class="checkin-text">完成打卡</text>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="checked-content">
+        <view class="checked-title">🎉 今日打卡成功！</view>
+        <view class="checked-duration">今日学习时长：{{formatDuration(todayRecord.duration)}}</view>
+        <view wx:if="{{todayRecord.note}}" class="checked-note">学习笔记：{{todayRecord.note}}</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="goal-card">
+    <view class="goal-header">
+      <text class="goal-icon">📚</text>
+      <text class="goal-title">学习目标</text>
+    </view>
+    
+    <block wx:if="{{activeGoals.length > 0}}">
+      <view wx:for="{{activeGoals}}" wx:key="id" class="goal-item">
+        <view class="goal-info">
+          <view class="goal-name">{{item.title}}</view>
+          <view class="goal-progress-text">{{formatDuration(item.currentDuration)}} / {{formatDuration(item.targetDuration)}}</view>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{calculateProgress(item.currentDuration, item.targetDuration)}}%"></view>
+        </view>
+        <view class="progress-value">{{calculateProgress(item.currentDuration, item.targetDuration)}}%</view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="empty-goals">
+        <text class="empty-text">暂无学习目标</text>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{showSuccessModal}}" class="modal-overlay" bindtap="closeModal">
+    <view class="modal-content" catchtap="noop">
+      <view class="modal-icon">🎉</view>
+      <view class="modal-title">打卡成功！</view>
+      <view class="modal-desc">坚持就是胜利，继续加油！</view>
+      <view class="modal-btn" bindtap="closeModal">
+        <text class="modal-btn-text">确定</text>
+      </view>
+    </view>
+  </view>
+</view>

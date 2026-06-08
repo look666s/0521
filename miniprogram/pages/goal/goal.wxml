@@ -1,0 +1,132 @@
+<view class="page">
+  <view class="page-header">
+    <view class="page-title">学习目标</view>
+    <view class="page-desc">设定目标，让学习更有方向</view>
+  </view>
+
+  <view class="goal-list">
+    <block wx:if="{{activeGoals.length > 0}}">
+      <view wx:for="{{activeGoals}}" wx:key="id" class="goal-card">
+        <view class="goal-card-header">
+          <view class="goal-name">{{item.title}}</view>
+          <view class="goal-status">进行中</view>
+        </view>
+        <view class="goal-desc">{{item.description}}</view>
+        <view class="goal-progress-section">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{calculateProgress(item.currentDuration, item.targetDuration)}}%"></view>
+          </view>
+          <view class="progress-text">
+            <text>{{formatDuration(item.currentDuration)}} / {{formatDuration(item.targetDuration)}}</text>
+            <text>{{calculateProgress(item.currentDuration, item.targetDuration)}}%</text>
+          </view>
+        </view>
+        <view class="goal-meta">
+          <view class="goal-deadline">
+            <text class="deadline-icon">📅</text>
+            <text>截止：{{item.deadline}}</text>
+          </view>
+          <view class="goal-actions">
+            <text class="action-btn edit" data-goal="{{item}}" bindtap="openEditModal">编辑</text>
+            <text class="action-btn delete" data-id="{{item.id}}" bindtap="deleteGoal">删除</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <block wx:if="{{completedGoals.length > 0}}">
+      <view class="section-title">已完成 ({{completedGoals.length}})</view>
+      <view wx:for="{{completedGoals}}" wx:key="id" class="goal-card">
+        <view class="goal-card-header">
+          <view class="goal-name">{{item.title}}</view>
+          <view class="goal-status completed">已完成</view>
+        </view>
+        <view class="goal-desc">{{item.description}}</view>
+        <view class="goal-progress-section">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: 100%"></view>
+          </view>
+          <view class="progress-text">
+            <text>{{formatDuration(item.currentDuration)}} / {{formatDuration(item.targetDuration)}}</text>
+            <text>100%</text>
+          </view>
+        </view>
+        <view class="goal-meta">
+          <view class="goal-deadline">
+            <text class="deadline-icon">✅</text>
+            <text>已完成</text>
+          </view>
+          <view class="goal-actions">
+            <text class="action-btn delete" data-id="{{item.id}}" bindtap="deleteGoal">删除</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{activeGoals.length === 0 && completedGoals.length === 0}}" class="empty-state">
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">还没有学习目标</text>
+      <text class="empty-hint">点击右下角按钮添加目标</text>
+    </view>
+  </view>
+
+  <view class="add-btn" bindtap="openAddModal">
+    <text class="add-icon">+</text>
+  </view>
+
+  <view wx:if="{{showAddModal}}" class="modal-overlay" bindtap="closeModal">
+    <view class="modal-content" catchtap="noop">
+      <view class="modal-title">{{editingGoal ? '编辑目标' : '添加目标'}}</view>
+      
+      <view class="form-item">
+        <view class="form-label">目标名称</view>
+        <input 
+          class="form-input" 
+          placeholder="例如：英语学习" 
+          value="{{goalForm.title}}"
+          bindinput="onTitleInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">目标描述</view>
+        <input 
+          class="form-textarea" 
+          placeholder="描述你的学习计划..." 
+          value="{{goalForm.description}}"
+          bindinput="onDescInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">目标时长</view>
+        <view class="duration-selector">
+          <view 
+            wx:for="{{durationOptions}}" 
+            wx:key="*this"
+            class="duration-option {{goalForm.targetDuration === item ? 'active' : ''}}"
+            data-duration="{{item}}"
+            bindtap="selectDuration"
+          >
+            {{item / 60}}小时
+          </view>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">截止日期</view>
+        <input 
+          class="form-input" 
+          placeholder="YYYY-MM-DD" 
+          value="{{goalForm.deadline}}"
+          bindinput="onDeadlineInput"
+        />
+      </view>
+
+      <view class="modal-actions">
+        <view class="modal-btn cancel" bindtap="closeModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveGoal">{{editingGoal ? '保存' : '添加'}}</view>
+      </view>
+    </view>
+  </view>
+</view>
