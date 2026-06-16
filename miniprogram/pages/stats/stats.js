@@ -5,7 +5,7 @@ Page({
     currentYear: 2024,
     currentMonth: 6,
     monthDays: [],
-    weekDays: ['日', '一', '二', '三', '四', '五', '六'],
+    weekDays: ['鏃?, '涓€', '浜?, '涓?, '鍥?, '浜?, '鍏?],
     today: '',
     weekData: [],
     maxWeekDuration: 1,
@@ -139,13 +139,13 @@ Page({
   },
 
   formatDuration(minutes) {
-    if (!minutes) return '0分钟'
+    if (!minutes) return '0鍒嗛挓'
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
     if (hours > 0) {
-      return `${hours}小时${mins > 0 ? mins + '分钟' : ''}`
+      return `${hours}灏忔椂${mins > 0 ? mins + '鍒嗛挓' : ''}`
     }
-    return `${mins}分钟`
+    return `${mins}鍒嗛挓`
   },
 
   prevMonth() {
