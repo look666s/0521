@@ -1,30 +1,89 @@
 App({
   globalData: {
     userProfile: {
-      nickname: '学习达人',
+      nickname: '瀛︿範杈句汉',
       totalStudyDays: 22,
       totalStudyHours: 86,
       longestStreak: 12,
       currentStreak: 5
     },
     checkInRecords: [],
+    checkInTypes: [
+      { name: '瀛︿範', icon: '馃摎', color: '#6366F1' },
+      { name: '宸ヤ綔', icon: '馃捈', color: '#10B981' },
+      { name: '杩愬姩', icon: '馃弮', color: '#F59E0B' },
+      { name: '闃呰', icon: '馃摉', color: '#8B5CF6' },
+      { name: '鍐欎綔', icon: '鉁嶏笍', color: '#EC4899' },
+      { name: '鍚冮キ', icon: '馃崝', color: '#F97316' },
+      { name: '鍠濇按', icon: '馃挧', color: '#06B6D4' },
+      { name: '鐫¤', icon: '馃槾', color: '#84CC16' }
+    ],
     studyGoals: [
-      { id: '1', title: '英语学习', description: '每天背诵20个单词，阅读一篇英文文章', targetDuration: 3000, currentDuration: 1850, deadline: '2026-07-08', completed: false, createdAt: '2026-05-24' },
-      { id: '2', title: '编程练习', description: '每天完成一道算法题，学习一个新技术', targetDuration: 2000, currentDuration: 1420, deadline: '2026-06-28', completed: false, createdAt: '2026-05-29' },
-      { id: '3', title: '阅读计划', description: '每月阅读一本书，做好读书笔记', targetDuration: 1200, currentDuration: 1200, deadline: '2026-06-03', completed: true, createdAt: '2026-05-08' }
+      { id: '1', title: '鑻辫瀛︿範', description: '姣忓ぉ鑳岃20涓崟璇嶏紝闃呰涓€绡囪嫳鏂囨枃绔?, targetDuration: 3000, currentDuration: 1850, deadline: '2026-07-08', completed: false, createdAt: '2026-05-24' },
+      { id: '2', title: '缂栫▼缁冧範', description: '姣忓ぉ瀹屾垚涓€閬撶畻娉曢锛屽涔犱竴涓柊鎶€鏈?, targetDuration: 2000, currentDuration: 1420, deadline: '2026-06-28', completed: false, createdAt: '2026-05-29' },
+      { id: '3', title: '闃呰璁″垝', description: '姣忔湀闃呰涓€鏈功锛屽仛濂借涔︾瑪璁?, targetDuration: 1200, currentDuration: 1200, deadline: '2026-06-03', completed: true, createdAt: '2026-05-08' }
     ],
     achievements: [
-      { id: '1', title: '初出茅庐', description: '完成第一次打卡', icon: '🌟', unlocked: true },
-      { id: '2', title: '坚持不懈', description: '连续打卡7天', icon: '🔥', unlocked: true },
-      { id: '3', title: '学霸养成', description: '连续打卡30天', icon: '👑', unlocked: false },
-      { id: '4', title: '时间管理', description: '单日学习超过3小时', icon: '⏰', unlocked: true },
-      { id: '5', title: '知识海洋', description: '累计学习超过100小时', icon: '📚', unlocked: false },
-      { id: '6', title: '全能选手', description: '完成所有学习目标', icon: '🏆', unlocked: false }
+      { id: '1', title: '鍒濆嚭鑼呭簮', description: '瀹屾垚绗竴娆℃墦鍗?, icon: '馃専', unlocked: true },
+      { id: '2', title: '鍧氭寔涓嶆噲', description: '杩炵画鎵撳崱7澶?, icon: '馃敟', unlocked: true },
+      { id: '3', title: '瀛﹂湼鍏绘垚', description: '杩炵画鎵撳崱30澶?, icon: '馃憫', unlocked: false },
+      { id: '4', title: '鏃堕棿绠＄悊', description: '鍗曟棩瀛︿範瓒呰繃3灏忔椂', icon: '鈴?, unlocked: true },
+      { id: '5', title: '鐭ヨ瘑娴锋磱', description: '绱瀛︿範瓒呰繃100灏忔椂', icon: '馃摎', unlocked: false },
+      { id: '6', title: '鍏ㄨ兘閫夋墜', description: '瀹屾垚鎵€鏈夊涔犵洰鏍?, icon: '馃弳', unlocked: false }
     ]
   },
+
   onLaunch() {
-    this.initCheckInRecords()
+    this.loadFromStorage()
+    if (this.globalData.checkInRecords.length === 0) {
+      this.initCheckInRecords()
+    }
+    this.saveToStorage()
   },
+
+  loadFromStorage() {
+    try {
+      const savedProfile = wx.getStorageSync('userProfile')
+      if (savedProfile) {
+        this.globalData.userProfile = JSON.parse(savedProfile)
+      }
+      
+      const savedRecords = wx.getStorageSync('checkInRecords')
+      if (savedRecords) {
+        this.globalData.checkInRecords = JSON.parse(savedRecords)
+      }
+      
+      const savedTypes = wx.getStorageSync('checkInTypes')
+      if (savedTypes) {
+        this.globalData.checkInTypes = JSON.parse(savedTypes)
+      }
+      
+      const savedGoals = wx.getStorageSync('studyGoals')
+      if (savedGoals) {
+        this.globalData.studyGoals = JSON.parse(savedGoals)
+      }
+      
+      const savedAchievements = wx.getStorageSync('achievements')
+      if (savedAchievements) {
+        this.globalData.achievements = JSON.parse(savedAchievements)
+      }
+    } catch (e) {
+      console.error('鍔犺浇瀛樺偍鏁版嵁澶辫触', e)
+    }
+  },
+
+  saveToStorage() {
+    try {
+      wx.setStorageSync('userProfile', JSON.stringify(this.globalData.userProfile))
+      wx.setStorageSync('checkInRecords', JSON.stringify(this.globalData.checkInRecords))
+      wx.setStorageSync('checkInTypes', JSON.stringify(this.globalData.checkInTypes))
+      wx.setStorageSync('studyGoals', JSON.stringify(this.globalData.studyGoals))
+      wx.setStorageSync('achievements', JSON.stringify(this.globalData.achievements))
+    } catch (e) {
+      console.error('淇濆瓨鏁版嵁澶辫触', e)
+    }
+  },
+
   initCheckInRecords() {
     const records = []
     const today = new Date()
@@ -36,13 +95,15 @@ App({
       records.push({
         date: dateStr,
         duration: isChecked ? Math.floor(Math.random() * 180) + 30 : 0,
-        note: isChecked ? ['今日学习很充实', '完成了计划内容', '继续加油！'][Math.floor(Math.random() * 3)] : '',
-        checkedIn: isChecked
+        note: isChecked ? ['浠婃棩瀛︿範寰堝厖瀹?, '瀹屾垚浜嗚鍒掑唴瀹?, '缁х画鍔犳补锛?][Math.floor(Math.random() * 3)] : '',
+        checkedIn: isChecked,
+        type: isChecked ? ['瀛︿範', '宸ヤ綔', '杩愬姩', '闃呰'][Math.floor(Math.random() * 4)] : ''
       })
     }
     this.globalData.checkInRecords = records
   },
-  checkIn(duration, note) {
+
+  checkIn(duration, note, type = '瀛︿範') {
     const today = new Date().toISOString().split('T')[0]
     const existingIndex = this.globalData.checkInRecords.findIndex(r => r.date === today)
     const isFirstCheckInToday = existingIndex < 0 || !this.globalData.checkInRecords[existingIndex].checkedIn
@@ -51,12 +112,14 @@ App({
       this.globalData.checkInRecords[existingIndex].duration += duration
       if (note) this.globalData.checkInRecords[existingIndex].note = note
       this.globalData.checkInRecords[existingIndex].checkedIn = true
+      this.globalData.checkInRecords[existingIndex].type = type
     } else {
       this.globalData.checkInRecords.push({
         date: today,
         duration,
         note: note || '',
-        checkedIn: true
+        checkedIn: true,
+        type
       })
     }
     
@@ -69,8 +132,24 @@ App({
     this.globalData.userProfile.longestStreak = Math.max(this.globalData.userProfile.longestStreak, this.globalData.userProfile.currentStreak)
     
     this.checkAchievements(duration)
+    this.saveToStorage()
   },
-  
+
+  addCheckInType(name, icon) {
+    const colors = ['#6366F1', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#F97316', '#06B6D4', '#84CC16']
+    const color = colors[this.globalData.checkInTypes.length % colors.length]
+    
+    const newType = { name, icon, color }
+    this.globalData.checkInTypes.push(newType)
+    this.saveToStorage()
+    return newType
+  },
+
+  deleteCheckInType(name) {
+    this.globalData.checkInTypes = this.globalData.checkInTypes.filter(t => t.name !== name)
+    this.saveToStorage()
+  },
+
   updateCurrentStreak() {
     const today = new Date()
     const todayStr = today.toISOString().split('T')[0]
@@ -91,9 +170,9 @@ App({
     
     this.globalData.userProfile.currentStreak = streak
   },
-  
+
   checkAchievements(duration) {
-    const { userProfile, achievements } = this.globalData
+    const { userProfile, achievements, studyGoals } = this.globalData
     
     if (!achievements.find(a => a.id === '1').unlocked && userProfile.totalStudyDays >= 1) {
       achievements.find(a => a.id === '1').unlocked = true
@@ -115,10 +194,11 @@ App({
       achievements.find(a => a.id === '5').unlocked = true
     }
     
-    const studyGoals = this.globalData.studyGoals
     const allGoalsCompleted = studyGoals.length > 0 && studyGoals.every(g => g.completed)
     if (!achievements.find(a => a.id === '6').unlocked && allGoalsCompleted) {
       achievements.find(a => a.id === '6').unlocked = true
     }
+    
+    this.saveToStorage()
   }
 })
