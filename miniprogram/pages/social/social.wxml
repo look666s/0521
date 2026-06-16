@@ -1,0 +1,166 @@
+<view class="page">
+  <view class="page-header">
+    <view class="page-title">瀛︿範绀惧尯</view>
+    <view class="page-desc">鍒嗕韩浣犵殑瀛︿範鍔ㄦ€?/view>
+  </view>
+
+  <view class="publish-section">
+    <view class="publish-card">
+      <view class="avatar-small">
+        <text class="avatar-icon">馃懁</text>
+      </view>
+      <view class="publish-input-wrap">
+        <input 
+          class="publish-input" 
+          placeholder="鍒嗕韩浣犵殑瀛︿範鍔ㄦ€?.." 
+          value="{{newPostContent}}"
+          bindinput="onPostInput"
+          confirm-type="send"
+          bindconfirm="publishPost"
+        />
+      </view>
+      <view class="type-btn" bindtap="toggleTypeSelector">
+        <text class="type-icon">{{checkInTypes.find(t => t.name === selectedType)?.icon || '馃摑'}}</text>
+        <text class="type-text">{{selectedType}}</text>
+      </view>
+      <view class="publish-btn" bindtap="publishPost">
+        <text>鍙戝竷</text>
+      </view>
+    </view>
+
+    <view wx:if="{{showTypeSelector}}" class="type-selector-modal" bindtap="toggleTypeSelector">
+      <view class="type-selector-content" catchtap="noop">
+        <view class="selector-title">閫夋嫨鎵撳崱绫诲瀷</view>
+        <view class="type-grid">
+          <view 
+            wx:for="{{checkInTypes}}" 
+            wx:key="name"
+            class="type-item {{selectedType === item.name ? 'active' : ''}}"
+            data-type="{{item.name}}"
+            bindtap="selectType"
+          >
+            <text class="type-icon">{{item.icon}}</text>
+            <text class="type-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{todayRecords.length > 0}}" class="today-section">
+    <view class="section-header">
+      <text class="section-icon">鉁?/text>
+      <text class="section-title">浠婃棩鎵撳崱璁板綍</text>
+    </view>
+    <view class="today-list">
+      <view wx:for="{{todayRecords}}" wx:key="date" class="today-item">
+        <view class="today-icon">鉁?/view>
+        <view class="today-info">
+          <text class="today-duration">{{formatDuration(item.duration)}}</text>
+          <text wx:if="{{item.note}}" class="today-note">{{item.note}}</text>
+        </view>
+        <text class="today-time">{{item.date}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="posts-section">
+    <view class="section-header">
+      <text class="section-icon">馃敟</text>
+      <text class="section-title">鐑棬鍔ㄦ€?/text>
+    </view>
+
+    <block wx:if="{{posts.length > 0}}">
+      <view wx:for="{{posts}}" wx:key="id" class="post-card">
+        <view class="post-header">
+          <view class="post-avatar">
+            <text class="avatar-icon">{{item.avatar}}</text>
+          </view>
+          <view class="post-user-info">
+            <text class="post-nickname">{{item.nickname}}</text>
+            <text class="post-date">{{item.date}}</text>
+          </view>
+          <view class="post-type" style="background: rgba(99, 102, 241, 0.1)">
+            <text class="type-icon">{{item.typeIcon}}</text>
+            <text class="type-name">{{item.type}}</text>
+          </view>
+        </view>
+
+        <view class="post-content">{{item.content}}</view>
+
+        <view wx:if="{{item.duration > 0}}" class="post-duration">
+          <text class="duration-icon">鈴憋笍</text>
+          <text>{{formatDuration(item.duration)}}</text>
+        </view>
+
+        <view class="post-actions">
+          <view 
+            class="action-item {{item.liked ? 'liked' : ''}}" 
+            data-id="{{item.id}}"
+            bindtap="toggleLike"
+          >
+            <text class="action-icon">{{item.liked ? '鉂わ笍' : '馃'}}</text>
+            <text class="action-text">{{item.likes}}</text>
+          </view>
+          <view class="action-item" data-id="{{item.id}}" bindtap="openComments">
+            <text class="action-icon">馃挰</text>
+            <text class="action-text">{{item.comments}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:else class="empty-state">
+      <text class="empty-icon">馃摥</text>
+      <text class="empty-text">鏆傛棤鍔ㄦ€?/text>
+      <text class="empty-hint">鎴愪负绗竴涓垎浜涔犲姩鎬佺殑浜哄惂锛?/text>
+    </view>
+  </view>
+
+  <view wx:if="{{showCommentModal}}" class="comment-modal-overlay" bindtap="closeCommentModal">
+    <view class="comment-modal-content" catchtap="noop">
+      <view class="modal-header">
+        <text class="modal-title">璇勮</text>
+        <text class="modal-close" bindtap="closeCommentModal">鉁?/text>
+      </view>
+      
+      <scroll-view class="comments-list" scroll-y>
+        <view wx:if="{{posts.find(p => p.id === currentPostId)?.commentList?.length > 0}}">
+          <view 
+            wx:for="{{posts.find(p => p.id === currentPostId)?.commentList}}" 
+            wx:key="id" 
+            class="comment-item"
+          >
+            <view class="comment-avatar">
+              <text>馃懁</text>
+            </view>
+            <view class="comment-body">
+              <view class="comment-header">
+                <text class="comment-nickname">{{item.nickname}}</text>
+                <text class="comment-date">{{item.date}}</text>
+              </view>
+              <text class="comment-content">{{item.content}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:else class="empty-comments">
+          <text>鏆傛棤璇勮锛屾潵璇翠袱鍙ュ惂~</text>
+        </view>
+      </scroll-view>
+
+      <view class="comment-input-wrap">
+        <input 
+          class="comment-input" 
+          placeholder="杈撳叆璇勮..." 
+          value="{{commentContent}}"
+          bindinput="onCommentInput"
+          confirm-type="send"
+          bindconfirm="sendComment"
+        />
+        <view class="send-btn" bindtap="sendComment">
+          <text>鍙戦€?/text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
